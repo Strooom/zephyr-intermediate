@@ -62,7 +62,7 @@ K_THREAD_DEFINE(thread_b, defaultThreadStackSize, threadMediumPriorityBody,
 K_THREAD_DEFINE(thread_c, defaultThreadStackSize, threadHighPriorityBody,
                 NULL, NULL, NULL, threadHighPriority, 0, 0);
 K_THREAD_DEFINE(thread_d, defaultThreadStackSize, cooperativeThreadBody,
-                NULL, NULL, NULL, threadCooperativePriority, 0, 0);
+                NULL, NULL, NULL, threadCooperativePriority, 0, 1000);
 int main(void)
 {
     return 0;
