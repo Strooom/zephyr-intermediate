@@ -36,10 +36,10 @@ void threadHighPriorityBody(void *p1, void *p2, void *p3)
 
 K_THREAD_DEFINE(thread_a, defaultThreadStackSize, threadLowPriorityBody,
                 NULL, NULL, NULL, threadLowPriority, 0, 0);
-// K_THREAD_DEFINE(thread_b, defaultThreadStackSize, threadMediumPriorityBody,
-//                 NULL, NULL, NULL, threadMediumPriority, 0, 0);
-// K_THREAD_DEFINE(thread_c, defaultThreadStackSize, threadHighPriorityBody,
-//                 NULL, NULL, NULL, threadHighPriority, 0, 0);
+K_THREAD_DEFINE(thread_b, defaultThreadStackSize, threadMediumPriorityBody,
+                NULL, NULL, NULL, threadMediumPriority, 0, 0);
+K_THREAD_DEFINE(thread_c, defaultThreadStackSize, threadHighPriorityBody,
+                NULL, NULL, NULL, threadHighPriority, 0, 0);
 
 int main(void)
 {
