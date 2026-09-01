@@ -41,3 +41,42 @@
 [00:00:01.070,000] <inf> demo: Cooperative thread yielding
 [00:00:01.070,000] <inf> demo: Cooperative thread running
 ```
+
+## l2-task1
+* I recreated the 2 thread with common counter example
+* I noticed that threadTwo was only started after threadOne finished -> corrected this by adding CONFIG_TIMESLICING=y to prj.conf.  Then both threads start and run simultaneously.
+* When running it on the native-sim, it was not possible to reproduce the race condition. I tried several things, but maybe the PC is too fast so the thread still finish before being interrupted.
+* Then I move to a devkit, in my case I took the FRDM-MCXA153, as it has a handy onboard debuglink / serial, all in one USB-C
+* Now the race condition appears : counter should be 100.000 but shows a smaller number, different every run.
+* Sometimes the count is still 100.000, so the race condition is a tough thing to reproduce, probably even tougher to debug
+
+```
+*** Booting Zephyr OS build v4.4.0 ***
+[00:00:00.000,274] <inf> demo: Starting threads : counter = 0
+[00:00:00.000,375] <inf> demo: Thread threadOne started
+[00:00:00.010,442] <inf> demo: Thread threadTwo started
+[00:00:00.025,115] <inf> demo: Thread threadOne finished
+[00:00:00.030,077] <inf> demo: Thread threadTwo finished
+[00:00:00.030,184] <inf> demo: Threads ready : counter = 83983
+*** Booting Zephyr OS build v4.4.0 ***
+[00:00:00.000,274] <inf> demo: Starting threads : counter = 0
+[00:00:00.000,375] <inf> demo: Thread threadOne started
+[00:00:00.010,442] <inf> demo: Thread threadTwo started
+[00:00:00.025,113] <inf> demo: Thread threadOne finished
+[00:00:00.030,074] <inf> demo: Thread threadTwo finished
+[00:00:00.030,181] <inf> demo: Threads ready : counter = 66243
+*** Booting Zephyr OS build v4.4.0 ***
+[00:00:00.000,274] <inf> demo: Starting threads : counter = 0
+[00:00:00.000,375] <inf> demo: Thread threadOne started
+[00:00:00.010,442] <inf> demo: Thread threadTwo started
+[00:00:00.025,116] <inf> demo: Thread threadOne finished
+[00:00:00.030,079] <inf> demo: Thread threadTwo finished
+[00:00:00.030,186] <inf> demo: Threads ready : counter = 83980
+*** Booting Zephyr OS build v4.4.0 ***
+[00:00:00.000,274] <inf> demo: Starting threads : counter = 0
+[00:00:00.000,375] <inf> demo: Thread threadOne started
+[00:00:00.010,442] <inf> demo: Thread threadTwo started
+[00:00:00.025,117] <inf> demo: Thread threadOne finished
+[00:00:00.030,080] <inf> demo: Thread threadTwo finished
+[00:00:00.030,187] <inf> demo: Threads ready : counter = 66251
+```

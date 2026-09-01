@@ -5,7 +5,7 @@ LOG_MODULE_REGISTER(demo, LOG_LEVEL_DBG);
 
 static constexpr uint32_t defaultThreadStackSize{1024U};
 static constexpr int32_t threadPriority{5};
-static constexpr int32_t nmbrOfLoops{1000000U};
+static constexpr int32_t nmbrOfLoops{50000U};
 
 static volatile uint64_t testCounter{};
 static struct k_sem ready;
@@ -18,9 +18,7 @@ const char *threadName = k_thread_name_get(k_current_get());
         uint64_t temp = testCounter;
         temp++;
         testCounter = temp;
-        // k_yield();
     }
-
     LOG_INF("Thread %s finished", threadName);
     k_sem_give(&ready);
 }
