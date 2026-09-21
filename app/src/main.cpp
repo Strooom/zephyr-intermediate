@@ -3,6 +3,13 @@
 
 LOG_MODULE_REGISTER(demo, LOG_LEVEL_DBG);
 
+static void work001Handler(struct k_work *work)
+{
+    ARG_UNUSED(work);
+    LOG_INF("workHandler : %u", k_uptime_get_32());
+}
+K_WORK_DEFINE(workThread001, work001Handler);
+
 static void onTimer001Expiry(struct k_timer *timer)
 {
     if (k_is_in_isr()) {
@@ -10,9 +17,10 @@ static void onTimer001Expiry(struct k_timer *timer)
     } else {
         LOG_INF("Thread : %u", k_uptime_get_32());
     }
+    k_work_submit(&workThread001);
 }
-
 K_TIMER_DEFINE(timer001, onTimer001Expiry, NULL);
+
 
 int main(void)
 {
