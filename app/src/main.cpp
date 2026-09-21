@@ -28,6 +28,11 @@ int main(void)
     k_timer_start(&timer001, K_MSEC(1000), K_MSEC(1000));
     while (true) {
         k_sleep(K_MSEC(500));
+        if (k_uptime_get_32() > 10000) {
+            LOG_INF("Stopping timer");
+            k_timer_stop(&timer001); 
+            break;
+        }
     }
     return 0;
 }
