@@ -80,3 +80,28 @@
 [00:00:00.030,080] <inf> demo: Thread threadTwo finished
 [00:00:00.030,187] <inf> demo: Threads ready : counter = 66251
 ```
+
+
+## l3-task1
+
+Created a timer-expiry handler ```onTimerExpiry()```  
+Created a workhandler ```workHandler()```  
+Calling workhandler from timerExpiry handler, showing context in the logging
+Started timer from main(), and stopping it after 5 seconds  
+
+```
+*** Booting Zephyr OS build v4.4.0 ***
+[00:00:00.000,000] <inf> demo: Starting timer
+[00:00:01.000,000] <inf> demo: timer ISR : 1000
+[00:00:01.000,000] <inf> demo: workHandler : 1000
+[00:00:02.000,000] <inf> demo: timer ISR : 2000
+[00:00:02.000,000] <inf> demo: workHandler : 2000
+[00:00:03.000,000] <inf> demo: timer ISR : 3000
+[00:00:03.000,000] <inf> demo: workHandler : 3000
+[00:00:04.000,000] <inf> demo: timer ISR : 4000
+[00:00:04.000,000] <inf> demo: workHandler : 4000
+[00:00:05.000,000] <inf> demo: timer ISR : 5000
+[00:00:05.000,000] <inf> demo: workHandler : 5000
+[00:00:05.100,000] <inf> demo: Stopping timer
+```
+
