@@ -9,15 +9,7 @@ struct sensorData {
     uint32_t timestampInMs;
 };
 
-static void onSensorData(const struct zbus_channel *chan)
-{
-    const struct sensorData *data = static_cast<const sensorData *>(zbus_chan_const_msg(chan));
-    LOG_INF("display %u, %u", data->measurementValue, data->timestampInMs);
-}
-// ZBUS_LISTENER_DEFINE(display_lis, onSensorData);
-// ZBUS_SUBSCRIBER_DEFINE(logger_sub, 4);
-
-ZBUS_CHAN_DEFINE(mySensorChannel, sensorData, NULL, NULL, ZBUS_OBSERVERS(syncListener), ZBUS_MSG_INIT(.measurementValue = 0, .timestampInMs = 0));
+ZBUS_CHAN_DEFINE(mySensorChannel, sensorData, NULL, NULL, ZBUS_OBSERVERS(syncListener, asyncListener), ZBUS_MSG_INIT(.measurementValue = 0, .timestampInMs = 0));
 
 static void onTimerExpiry(struct k_timer *timer)
 {
@@ -30,12 +22,14 @@ static void onTimerExpiry(struct k_timer *timer)
 K_TIMER_DEFINE(theTimer, onTimerExpiry, NULL);
 
 
-void mySynchronousListener(const struct zbus_channel *chan)
+void mySynchronousListener(const struct zbus_channel *someChannel)
 {
-    const struct sensorData *msg = static_cast<const sensorData *>(zbus_chan_const_msg(chan));
+    const struct sensorData *msg = static_cast<const sensorData *>(zbus_chan_const_msg(someChannel));
     LOG_INF("listenSynchronous %u, %u", msg->measurementValue, msg->timestampInMs);    
 }
 ZBUS_LISTENER_DEFINE(syncListener, mySynchronousListener);
+
+ZBUS_SUBSCRIBER_DEFINE(asyncListener, 8); 
 
 int main(void)
 {
@@ -43,9 +37,16 @@ int main(void)
     k_timer_start(&theTimer, K_MSEC(1000), K_MSEC(1000));
 
     while (true) {
-        k_sleep(K_MSEC(100));
-    }
+        k_sleep(K_MSEC(2000));
 
+        const struct zbus_channel *someChannel;
+        while (!zbus_sub_wait(&asyncListener, &someChannel, K_FOREVER)) 
+            {
+            struct sensorData msg;
+            zbus_chan_read(someChannel, &msg, K_MSEC(100));
+            LOG_INF("listenAsynchronous %u, %u", msg.measurementValue, msg.timestampInMs);
+        }
+    }
     return 0;
 }
 

@@ -128,3 +128,36 @@ Then I continued with a z-bus exercise. It did work, but still something strange
 [00:00:06.000,309] <inf> demo: listenSynchronous 123, 6000
 ```
 
+Finally : timer publishing message on zbus, synchronous call to syncListener, and asynchronous read by main thread, every 2 seconds...
+
+```
+*** Booting Zephyr OS build v4.4.0 ***
+[00:00:00.000,243] <inf> demo: Starting timer
+[00:00:01.000,273] <inf> demo: publish 123, 1000
+[00:00:01.000,347] <inf> demo: listenSynchronous 123, 1000
+[00:00:02.000,375] <inf> demo: publish 123, 2000
+[00:00:02.000,433] <inf> demo: listenSynchronous 123, 2000
+[00:00:02.000,844] <inf> demo: listenAsynchronous 123, 2000
+[00:00:02.000,908] <inf> demo: listenAsynchronous 123, 2000
+[00:00:03.000,272] <inf> demo: publish 123, 3000
+[00:00:03.000,345] <inf> demo: listenSynchronous 123, 3000
+[00:00:03.000,480] <inf> demo: listenAsynchronous 123, 3000
+[00:00:04.000,274] <inf> demo: publish 123, 4000
+[00:00:04.000,332] <inf> demo: listenSynchronous 123, 4000
+[00:00:04.000,563] <inf> demo: listenAsynchronous 123, 4000
+[00:00:05.000,272] <inf> demo: publish 123, 5000
+[00:00:05.000,345] <inf> demo: listenSynchronous 123, 5000
+[00:00:05.000,480] <inf> demo: listenAsynchronous 123, 5000
+[00:00:06.000,274] <inf> demo: publish 123, 6000
+[00:00:06.000,332] <inf> demo: listenSynchronous 123, 6000
+[00:00:06.000,563] <inf> demo: listenAsynchronous 123, 6000
+[00:00:07.000,272] <inf> demo: publish 123, 7000
+```
+
+Note : Initially I got errors after some time, looking like a stack overflow. So I enabled some more config :   
+```
+CONFIG_ASSERT=y  
+CONFIG_HW_STACK_PROTECTION=y  
+CONFIG_STACK_SENTINEL=y  
+```
+Then it showed the cause : stack overflow. I increased the stack from 1K to 2K and then it worked. Still, a lot of stack needed for such a simple application...
