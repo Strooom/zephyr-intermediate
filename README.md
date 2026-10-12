@@ -109,3 +109,22 @@ Started timer from main(), and stopping it after 5 seconds
 
 Note : as preparation for this task I first built an app with a simple message queue. I had some trouble with getting it to work on native-sim : the k_msgq_get(&theQueue, &currentTime, K_FOREVER); would not block until a message arrived. When I built it for the NXP board, it worked just like that : Lesson learned is that native-sim is maybe not that 100% compatible with actual hardware...
 
+Then I continued with a z-bus exercise. It did work, but still something strange : the log has correct timestamps, but appears every 2 seconds, io every second... So in the logging below, it does not show 2 lines every second, but 4 lines every 2 seconds... Still some mystery about the logging feature I guess
+
+```
+*** Booting Zephyr OS build v4.4.0 ***
+[00:00:00.000,209] <inf> demo: Starting timer
+[00:00:01.000,259] <inf> demo: publish 123, 1000
+[00:00:01.000,319] <inf> demo: listenSynchronous 123, 1000
+[00:00:02.000,260] <inf> demo: publish 123, 2000
+[00:00:02.000,309] <inf> demo: listenSynchronous 123, 2000
+[00:00:03.000,259] <inf> demo: publish 123, 3000
+[00:00:03.000,319] <inf> demo: listenSynchronous 123, 3000
+[00:00:04.000,260] <inf> demo: publish 123, 4000
+[00:00:04.000,309] <inf> demo: listenSynchronous 123, 4000
+[00:00:05.000,259] <inf> demo: publish 123, 5000
+[00:00:05.000,319] <inf> demo: listenSynchronous 123, 5000
+[00:00:06.000,260] <inf> demo: publish 123, 6000
+[00:00:06.000,309] <inf> demo: listenSynchronous 123, 6000
+```
+

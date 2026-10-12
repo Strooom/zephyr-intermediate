@@ -1,32 +1,51 @@
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
+#include <zephyr/zbus/zbus.h>
 
 LOG_MODULE_REGISTER(demo, LOG_LEVEL_DBG);
 
-static constexpr uint32_t messageItemSize = sizeof(uint32_t);
-static constexpr uint32_t messageQueueLength = 8;
-K_MSGQ_DEFINE(theQueue, messageItemSize, messageQueueLength, 4);
+struct sensorData {
+    uint32_t measurementValue;
+    uint32_t timestampInMs;
+};
+
+static void onSensorData(const struct zbus_channel *chan)
+{
+    const struct sensorData *data = static_cast<const sensorData *>(zbus_chan_const_msg(chan));
+    LOG_INF("display %u, %u", data->measurementValue, data->timestampInMs);
+}
+// ZBUS_LISTENER_DEFINE(display_lis, onSensorData);
+// ZBUS_SUBSCRIBER_DEFINE(logger_sub, 4);
+
+ZBUS_CHAN_DEFINE(mySensorChannel, sensorData, NULL, NULL, ZBUS_OBSERVERS(syncListener), ZBUS_MSG_INIT(.measurementValue = 0, .timestampInMs = 0));
 
 static void onTimerExpiry(struct k_timer *timer)
 {
-    uint32_t currentTime = k_uptime_get_32();
-    LOG_INF("push %u", currentTime);    
-    k_msgq_put(&theQueue, &currentTime, K_NO_WAIT);
+    struct sensorData someData;
+    someData.measurementValue = 123;
+    someData.timestampInMs = k_uptime_get_32();
+    LOG_INF("publish %u, %u", someData.measurementValue, someData.timestampInMs);    
+    zbus_chan_pub(&mySensorChannel, &someData, K_NO_WAIT);
 }
 K_TIMER_DEFINE(theTimer, onTimerExpiry, NULL);
 
+
+void mySynchronousListener(const struct zbus_channel *chan)
+{
+    const struct sensorData *msg = static_cast<const sensorData *>(zbus_chan_const_msg(chan));
+    LOG_INF("listenSynchronous %u, %u", msg->measurementValue, msg->timestampInMs);    
+}
+ZBUS_LISTENER_DEFINE(syncListener, mySynchronousListener);
+
 int main(void)
 {
-    	uint32_t level = messageQueueLength - k_msgq_num_free_get(&theQueue);
-    LOG_INF("Queue level: %u", level);
     LOG_INF("Starting timer");
     k_timer_start(&theTimer, K_MSEC(1000), K_MSEC(1000));
 
-for (uint32_t loopIndex = 0; loopIndex < 10; ++loopIndex) {
-        uint32_t currentTime;
-        k_msgq_get(&theQueue, &currentTime, K_FOREVER);
-        LOG_INF("pop %u", currentTime);
+    while (true) {
+        k_sleep(K_MSEC(100));
     }
+
     return 0;
 }
 
