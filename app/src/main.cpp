@@ -3,36 +3,29 @@
 
 LOG_MODULE_REGISTER(demo, LOG_LEVEL_DBG);
 
-static void workHandler(struct k_work *work)
-{
-    ARG_UNUSED(work);
-    LOG_INF("workHandler : %u", k_uptime_get_32());
-}
-K_WORK_DEFINE(workThread, workHandler);
+static constexpr uint32_t messageItemSize = sizeof(uint32_t);
+static constexpr uint32_t messageQueueLength = 8;
+K_MSGQ_DEFINE(theQueue, messageItemSize, messageQueueLength, 4);
 
 static void onTimerExpiry(struct k_timer *timer)
 {
-    if (k_is_in_isr()) {
-        LOG_INF("timer ISR : %u", k_uptime_get_32());
-    } else {
-        LOG_INF("timer thread : %u", k_uptime_get_32());
-    }
-    k_work_submit(&workThread);
+    uint32_t currentTime = k_uptime_get_32();
+    LOG_INF("push %u", currentTime);    
+    k_msgq_put(&theQueue, &currentTime, K_NO_WAIT);
 }
 K_TIMER_DEFINE(theTimer, onTimerExpiry, NULL);
 
-
 int main(void)
 {
+    	uint32_t level = messageQueueLength - k_msgq_num_free_get(&theQueue);
+    LOG_INF("Queue level: %u", level);
     LOG_INF("Starting timer");
     k_timer_start(&theTimer, K_MSEC(1000), K_MSEC(1000));
-    while (true) {
-        k_sleep(K_MSEC(500));
-        if (k_uptime_get_32() > 5000) {
-            LOG_INF("Stopping timer");
-            k_timer_stop(&theTimer); 
-            break;
-        }
+
+for (uint32_t loopIndex = 0; loopIndex < 10; ++loopIndex) {
+        uint32_t currentTime;
+        k_msgq_get(&theQueue, &currentTime, K_FOREVER);
+        LOG_INF("pop %u", currentTime);
     }
     return 0;
 }

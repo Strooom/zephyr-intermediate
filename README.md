@@ -105,3 +105,7 @@ Started timer from main(), and stopping it after 5 seconds
 [00:00:05.100,000] <inf> demo: Stopping timer
 ```
 
+## l4-task1
+
+Note : as preparation for this task I first built an app with a simple message queue. I had some trouble with getting it to work on native-sim : the k_msgq_get(&theQueue, &currentTime, K_FOREVER); would not block until a message arrived. When I built it for the NXP board, it worked just like that : Lesson learned is that native-sim is maybe not that 100% compatible with actual hardware...
+
